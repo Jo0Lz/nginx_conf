@@ -1,0 +1,29 @@
+server {
+	listen 80;
+	server_name librenms.jo0lz.nl;
+
+	root /opt/librenmsv2/public;
+	index index.php;
+
+	access_log /opt/librenmsv2/logs/access_log;
+	error_log /opt/librenmsv2/logs/error_log;
+
+	large_client_header_buffers 8 16k;
+	client_header_buffer_size 8k;
+
+	location / {
+		try_files $uri $uri/ /index.php$is_args$args;
+	}
+	# Cache static resources It may be beneficial to disable this if you are doing development
+	# location ~* \.(?:ico|css|js|gif|jpe?g|png|woff|ttf|otf|svg|woff2|eot)$ {
+	# expires 30d; add_header Pragma public; add_header Cache-Control "public, must-revalidate, proxy-revalidate";
+	# }
+	# pass the PHP scripts to FastCGI server listening on /var/run/php5-fpm.sock
+	location ~ \.php$ {
+		try_files $uri /index.php =404;
+		fastcgi_pass 127.0.0.1:9000;
+		fastcgi_index index.php;
+		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+		include fastcgi_params;
+	}
+}
